@@ -1,0 +1,28 @@
+#!/usr/bin/env python3
+import base64
+import os
+import stat
+import subprocess
+import tempfile
+
+PAYLOAD1 = "IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwpwcmludCgiTWVzc2FnZSBmcm9tIGJpbjEiKQo="
+PAYLOAD2 = "IyEvdXNyL2Jpbi9lbnYgcHl0aG9uMwpwcmludCgiTWVzc2FnZSBmcm9tIGJpbjIiKQo="
+
+
+def run_payload(b64_data):
+    data = base64.b64decode(b64_data)
+    fd, tmp = tempfile.mkstemp()
+    try:
+        os.write(fd, data)
+        os.close(fd)
+        os.chmod(tmp, stat.S_IRWXU)
+        subprocess.run([tmp], check=False)
+    finally:
+        try:
+            os.unlink(tmp)
+        except OSError:
+            pass
+
+
+run_payload(PAYLOAD1)
+run_payload(PAYLOAD2)
